@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/c716a791-9144-4dfa-8c9a-b3ef20a49775)# kube-
+#kube-
 install
 tep-by-Step Installation
 --.yml file
