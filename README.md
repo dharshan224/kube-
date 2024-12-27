@@ -1,6 +1,20 @@
-# kube-
+![image](https://github.com/user-attachments/assets/c716a791-9144-4dfa-8c9a-b3ef20a49775)# kube-
 install
 tep-by-Step Installation
+--.yml file
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: shan
+spec:
+  containers:
+    - name: log
+      image: ubuntu
+      command: ["/bin/bash", "-c", "while true; do echo shanup; sleep 1; done"]
+
+```
+
 ```
 -Step 1: Disable Swap on All Nodes
 swapoff -a
