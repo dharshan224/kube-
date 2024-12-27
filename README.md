@@ -320,3 +320,123 @@ Run the command generated after initializing the master node on each worker node
 kubeadm join 192.168.122.100:6443 --token zcijug.ye3vrct74itrkesp \
         --discovery-token-ca-cert-hash sha256:e9dd1a0638a5a1aa1850c16f4c9eeaa2e58d03f97fd0403f587c69502570c9cd
 ```
+
+
+
+
+-Control plane
+```
+ 1  sudo apt update -y
+    2  sudo apt upgrade -y
+    3  swapoff -a
+    4  sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+    5  cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.ipv4.ip_forward = 1
+EOF
+
+    6  sudo sysctl --system
+    7  sysctl net.ipv4.ip_forward
+    8  # Add Docker's official GPG key:
+    9  sudo apt-get update
+   10  sudo apt-get install ca-certificates curl
+   11  sudo install -m 0755 -d /etc/apt/keyrings
+   12  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+   13  sudo chmod a+r /etc/apt/keyrings/docker.asc
+   14  # Add the repository to Apt sources:
+   15  echo   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   16  sudo apt-get update && sudo apt-get install containerd.io && systemctl enable --now containerd
+   17  wget https://github.com/containernetworking/plugins/releases/download/v1.4.0/cni-plugins-linux-amd64-v1.4.0.tgz
+   18  mkdir -p /opt/cni/bin
+   19  tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.4.0.tgz
+   20  cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+   21  sudo modprobe overlay
+   22  sudo modprobe br_netfilter
+   23  cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward = 1
+EOF
+
+   24  sudo sysctl --system
+   25  sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
+   26  modprobe br_netfilter
+   27  sysctl -p /etc/sysctl.conf
+   28  sudo cat > /etc/containerd/config.toml
+   29  sudo systemctl restart containerd && systemctl status containerd
+   30  sudo apt-get update
+   31  sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+   32  sudo mkdir -p -m 755 /etc/apt/keyrings
+   33  curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+   34  echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+   35  sudo apt-get update -y
+   36  sudo apt-get install -y kubelet kubeadm kubectl
+   37  sudo apt-mark hold kubelet kubeadm kubectl
+   38  sudo kubeadm config images pull
+   39  sudo kubeadm init
+   40  mkdir -p $HOME/.kube
+   41  kubectl apply -f https://kubernetes.io/docs/concepts/cluster-administration/addons/
+   42  kubectl apply -f https://reweave.azurewebsites.net/k8s/v1.30/net.yaml
+   43  kubectl get nodes
+```
+
+-- Worker 
+
+```
+t@ip-172-31-32-42:~# history
+    1  sudo apt update -y
+    2  sudo apt upgrade -y
+    3  swapoff -a
+    4  sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+    5  cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.ipv4.ip_forward = 1
+EOF
+
+    6  sudo sysctl --system
+    7  sysctl net.ipv4.ip_forward
+    8  # Add Docker's official GPG key:
+    9  sudo apt-get update
+   10  sudo apt-get install ca-certificates curl
+   11  sudo install -m 0755 -d /etc/apt/keyrings
+   12  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+   13  sudo chmod a+r /etc/apt/keyrings/docker.asc
+   14  # Add the repository to Apt sources:
+   15  echo   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   16  sudo apt-get update && sudo apt-get install containerd.io && systemctl enable --now containerd
+   17  wget https://github.com/containernetworking/plugins/releases/download/v1.4.0/cni-plugins-linux-amd64-v1.4.0.tgz
+   18  mkdir -p /opt/cni/bin
+   19  tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.4.0.tgz
+   20  cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+   21  sudo modprobe overlay
+   22  sudo modprobe br_netfilter
+   23  cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward = 1
+EOF
+
+   24  sudo sysctl --system
+   25  sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
+   26  modprobe br_netfilter
+   27  sysctl -p /etc/sysctl.conf
+   28  sudo cat > /etc/containerd/config.toml
+   29  sudo systemctl restart containerd && systemctl status containerd
+   30  sudo apt-get update
+   31  sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+   32  sudo mkdir -p -m 755 /etc/apt/keyrings
+   33  curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+   34  echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+   35  sudo apt-get update -y
+   36  sudo apt-get install -y kubelet kubeadm kubectl
+   37  sudo apt-mark hold kubelet kubeadm kubectl
+   38  sudo kubeadm join 172.31.45.41:6443 --token o6857y.t5e9f9isw1yzhgxx         --discovery-token-ca-cert-hash sha256:5d12fa4398b521b9a37292e29c8d3a33bf9b71209ebf5c617670dfdaf239e362
+```
