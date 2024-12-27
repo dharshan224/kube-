@@ -1,7 +1,8 @@
 #kube-
 install
 tep-by-Step Installation
---.yml file
+
+-.yml file
 ```
 apiVersion: v1
 kind: Pod
@@ -13,6 +14,19 @@ spec:
       image: ubuntu
       command: ["/bin/bash", "-c", "while true; do echo shanup; sleep 1; done"]
 
+```
+-port.yml
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web
+spec:
+  containers:
+    - name: amazon
+      image: nginx
+      ports:
+        - containerPort: 80
 ```
 
 ```
