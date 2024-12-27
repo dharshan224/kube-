@@ -29,13 +29,15 @@ spec:
         - containerPort: 80
 ```
 
-```
+
 -Step 1: Disable Swap on All Nodes
+```
 swapoff -a
 sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 ```
-```
+
 -Step 2: Enable IPv4 Packet Forwarding
+```
 sysctl params required by setup, params persist across reboots
 cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
 net.ipv4.ip_forward = 1
