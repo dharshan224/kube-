@@ -49,12 +49,12 @@ EOF
 ```
 sudo sysctl --system
 ```
-```
 Step 3: Verify IPv4 Packet Forwarding
+```
 sysctl net.ipv4.ip_forward
 ```
-```
 Step 4: Install containerd
+```
 # Add Docker's official GPG key:
 sudo apt-get update
 sudo apt-get install ca-certificates curl
@@ -69,14 +69,14 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update && sudo apt-get install containerd.io && systemctl enable --now containerd
 ```
-```
 Step 5: Install CNI Plugin
+```
 wget https://github.com/containernetworking/plugins/releases/download/v1.4.0/cni-plugins-linux-amd64-v1.4.0.tgz
 mkdir -p /opt/cni/bin
 tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.4.0.tgz
 ```
-```
 Step 6: Forward IPv4 and Configure iptables
+```
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
 overlay
 br_netfilter
@@ -95,8 +95,8 @@ sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables ne
 modprobe br_netfilter
 sysctl -p /etc/sysctl.conf
 ```
-```
 Step 7: Modify containerd Configuration for systemd Support
+```
 sudo cat > /etc/containerd/config.toml
 Paste the configuration in the file and save it.
 disabled_plugins = []
@@ -315,11 +315,13 @@ version = 2
   address = ""
   gid = 0
   uid = 0
+```
 Step 8: Restart containerd and Check the Status
+```
 sudo systemctl restart containerd && systemctl status containerd
 ```
-```
 Step 9: Install kubeadm, kubelet, and kubectl
+```
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl gpg
 
@@ -331,8 +333,8 @@ sudo apt-get update -y
 sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 ```
-```
 Step 10: Initialize the Cluster and Install CNI In the master node
+```
 sudo kubeadm config images pull
 sudo kubeadm init
 After Initialzing the Cluster Connect to it and apply the CNI yaml in Master node
@@ -348,8 +350,8 @@ export KUBECONFIG=/etc/kubernetes/admin.conf
 #Apply the CNI YAML
 kubectl apply -f https://reweave.azurewebsites.net/k8s/v1.30/net.yaml
 ```
-```
 Step 11: Join Worker Nodes to the Cluster
+```
 Run the command generated after initializing the master node on each worker node. For example:
 kubeadm join 192.168.122.100:6443 --token zcijug.ye3vrct74itrkesp \
         --discovery-token-ca-cert-hash sha256:e9dd1a0638a5a1aa1850c16f4c9eeaa2e58d03f97fd0403f587c69502570c9cd
